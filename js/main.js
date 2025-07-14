@@ -1,70 +1,60 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Отримуємо доступ до елементів DOM ---
     const form = document.getElementById('calc-form');
     const totalCostElem = document.getElementById('total-cost');
     const totalTimelineElem = document.getElementById('total-timeline');
 
-    // --- Базові ціни та терміни ---
-    const basePrices = {
-        landing: 500,
-        portfolio: 800,
-        corporate: 1500,
-        ecommerce: 2500,
-    };
-
-    const baseTimelines = {
-        landing: 1, // в тижнях
-        portfolio: 2,
-        corporate: 4,
-        ecommerce: 6,
-    };
-
-    const designPrices = {
-        template: 0,
-        unique: 1000,
-    };
-
-    const designTimelines = {
-        template: 0,
-        unique: 2,
-    };
-
-    const modulePrices = {
-        feedbackForm: 100,
-        gallery: 250,
-        blog: 400,
-        socialMedia: 150,
-        basicSeo: 200,
-    };
-
-    const moduleTimelines = {
-        feedbackForm: 0.5,
-        gallery: 1,
-        blog: 1.5,
-        socialMedia: 0.5,
-        basicSeo: 1,
+    // --- Єдина конфігурація з годинами та ставкою ---
+    const RATES = {
+        // Погодинна ставка в $
+        hourlyRate: 30,
+        // Оцінка в годинах
+        project: {
+            landing: 20,
+            portfolio: 35,
+            corporate: 60,
+            ecommerce: 100
+        },
+        design: {
+            template: 15,
+            unique: 40
+        },
+        modules: {
+            feedbackForm: 5,
+            gallery: 8,
+            blog: 25,
+            socialMedia: 6,
+            basicSeo: 12
+        }
     };
 
     function calculate() {
-        // 1. Тип проєкту
+        // --- 1. Розрахунок загальної кількості годин ---
+        let totalHours = 0;
+
+        // Додаємо години за тип проєкту
         const projectType = form.querySelector('input[name="projectType"]:checked').value;
-        let currentCost = basePrices[projectType];
-        let currentTimeline = baseTimelines[projectType];
+        totalHours += RATES.project[projectType];
 
-        // 2. Дизайн
+        // Додаємо години за тип дизайну
         const designType = form.querySelector('input[name="designType"]:checked').value;
-        currentCost += designPrices[designType];
-        currentTimeline += designTimelines[designType];
+        totalHours += RATES.design[designType];
 
-        // 3. Додаткові модулі
+        // Додаємо години за обрані модулі
         const selectedModules = form.querySelectorAll('input[name="module"]:checked');
         selectedModules.forEach(module => {
-            currentCost += modulePrices[module.value];
-            currentTimeline += moduleTimelines[module.value];
+            totalHours += RATES.modules[module.value];
         });
 
-        // Оновлення результатів на сторінці
-        totalCostElem.textContent = `${currentCost} $`;
-        totalTimelineElem.textContent = `${currentTimeline} тижнів`;
+        // --- 2. Розрахунок вартості та термінів ---
+        const totalCost = totalHours * RATES.hourlyRate;
+
+        // Розраховуємо термін: 40 годин на тиждень
+        const totalWeeks = Math.ceil(totalHours / 40);
+
+        // --- 3. Оновлення результатів на сторінці ---
+        totalCostElem.textContent = `${totalCost} $`;
+        totalTimelineElem.textContent = `${totalWeeks} тиж.`;
     }
 
     // Обробник подій для будь-якої зміни у формі
