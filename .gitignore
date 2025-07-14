@@ -1,0 +1,15 @@
+# macOS specific files
+.DS_Store
+
+# VS Code specific files
+.vscode/
+
+# Dependency directories (for future use)
+node_modules/
+
+# Build output directories (for future use)
+dist/
+build/
+
+# Environment variables file (important for security)
+.env
