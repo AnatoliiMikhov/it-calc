@@ -1,0 +1,191 @@
+/* --- Загальні стилі та змінні --- */
+:root {
+    --primary-color: #6a5acd; /* SlateBlue */
+    --secondary-color: #f0e6ff; /* Lavender */
+    --text-color: #333;
+    --bg-color-start: #a18cd1; /* Light purple */
+    --bg-color-end: #fbc2eb; /* Light pink */
+    --container-bg: rgba(255, 255, 255, 0.3);
+    --border-color: rgba(255, 255, 255, 0.5);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --highlight-color: #4b0082; /* Indigo */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg-color-start), var(--bg-color-end));
+    color: var(--text-color);
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* --- Контейнер калькулятора (Гласморфізм) --- */
+.calculator-container {
+    width: 100%;
+    max-width: 700px;
+    background: var(--container-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    padding: 2rem 3rem;
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+}
+
+h1, h2 {
+    text-align: center;
+    color: var(--highlight-color);
+}
+
+h1 {
+    margin-bottom: 0.5rem;
+}
+
+.calculator-container > p {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+
+/* --- Стилізація форми --- */
+#calc-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+legend {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--secondary-color);
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.option:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.option label {
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+/* --- Кастомні радіо та чекбокси --- */
+input[type="radio"], input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.5em;
+    height: 1.5em;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+input[type="checkbox"] {
+    border-radius: 5px;
+}
+
+input[type="radio"]:checked, input[type="checkbox"]:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50%;
+    background: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+input[type="checkbox"]:checked::after {
+    content: '✔';
+    color: white;
+    font-size: 1.2em;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1;
+}
+
+
+/* --- Секція результатів --- */
+#results {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--secondary-color);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    padding: 0.5rem 0;
+}
+
+.result-item span:first-child {
+    font-weight: 500;
+}
+
+.highlight {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--highlight-color);
+}
+
+.disclaimer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
+    margin-top: 1.5rem;
+}
+
+/* --- Адаптивність --- */
+ @media (max-width: 600px) {
+    body {
+        padding: 1rem;
+    }
+    .calculator-container {
+        padding: 1.5rem;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+}

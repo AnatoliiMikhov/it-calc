@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор вартості IT-проєкту</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <main class="calculator-container">
+        <h1>Калькулятор вартості IT-проєкту</h1>
+        <p>Оцініть приблизну вартість та терміни реалізації вашого майбутнього проєкту.</p>
+
+        <form id="calc-form">
+            <!-- Секція "Тип проєкту" -->
+            <fieldset>
+                <legend>1. Тип проєкту</legend>
+                <div class="option">
+                    <input type="radio" id="type-landing" name="projectType" value="landing" checked>
+                    <label for="type-landing">Лендінг (односторінковий сайт)</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="type-portfolio" name="projectType" value="portfolio">
+                    <label for="type-portfolio">Сайт-візитка (до 5 сторінок)</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="type-corporate" name="projectType" value="corporate">
+                    <label for="type-corporate">Корпоративний сайт</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="type-ecommerce" name="projectType" value="ecommerce">
+                    <label for="type-ecommerce">Інтернет-магазин (базовий)</label>
+                </div>
+            </fieldset>
+
+            <!-- Секція "Дизайн" -->
+            <fieldset>
+                <legend>2. Дизайн</legend>
+                <div class="option">
+                    <input type="radio" id="design-template" name="designType" value="template" checked>
+                    <label for="design-template">На основі готового шаблону</label>
+                </div>
+                <div class="option">
+                    <input type="radio" id="design-unique" name="designType" value="unique">
+                    <label for="design-unique">Унікальний дизайн "з нуля"</label>
+                </div>
+            </fieldset>
+
+            <!-- Секція "Додаткові модулі" -->
+            <fieldset>
+                <legend>3. Додаткові модулі</legend>
+                <div class="option">
+                    <input type="checkbox" id="mod-feedback" name="module" value="feedbackForm">
+                    <label for="mod-feedback">Форма зворотного зв'язку</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="mod-gallery" name="module" value="gallery">
+                    <label for="mod-gallery">Фотогалерея</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="mod-blog" name="module" value="blog">
+                    <label for="mod-blog">Блог / Новини</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="mod-social" name="module" value="socialMedia">
+                    <label for="mod-social">Інтеграція з соцмережами</label>
+                </div>
+                 <div class="option">
+                    <input type="checkbox" id="mod-seo" name="module" value="basicSeo">
+                    <label for="mod-seo">Базова SEO-оптимізація</label>
+                </div>
+            </fieldset>
+        </form>
+
+        <!-- Секція результатів -->
+        <section id="results">
+            <h2>Орієнтовний розрахунок:</h2>
+            <div class="result-item">
+                <span>Приблизна вартість:</span>
+                <span id="total-cost" class="highlight">0 $</span>
+            </div>
+            <div class="result-item">
+                <span>Приблизний термін:</span>
+                <span id="total-timeline" class="highlight">0 тижнів</span>
+            </div>
+            <p class="disclaimer">Це попередня оцінка. Для отримання точної пропозиції, будь ласка, зв'яжіться з нами.</p>
+        </section>
+
+    </main>
+
+    <script src="js/main.js" defer></script>
+</body>
+</html>
