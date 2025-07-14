@@ -6,66 +6,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Єдина конфігурація з годинами та ставкою ---
     const RATES = {
-        // Погодинна ставка в $
         hourlyRate: 30,
-        // Оцінка в годинах
-        project: {
-            landing: 20,
-            portfolio: 35,
-            corporate: 60,
-            ecommerce: 100
-        },
-        design: {
-            template: 15,
-            unique: 40
-        },
-        modules: {
-            feedbackForm: 5,
-            gallery: 8,
-            blog: 25,
-            socialMedia: 6,
-            basicSeo: 12
-        }
+        project: { landing: 20, portfolio: 35, corporate: 60, ecommerce: 100 },
+        design: { template: 15, unique: 40 },
+        modules: { feedbackForm: 5, gallery: 8, blog: 25, socialMedia: 6, basicSeo: 12 }
     };
 
+    // --- Змінні для зберігання попередніх значень для анімації ---
+    let previousCost = 0;
+    let previousTotalHours = 0;
+
+    /**
+     * Універсальна функція для анімації числового значення.
+     * @param {number} start - Початкове значення.
+     * @param {number} end - Кінцеве значення.
+     * @param {number} duration - Тривалість анімації в мс.
+     * @param {function(number)} onFrame - Функція, що викликається на кожному кадрі з поточним значенням.
+     */
+    function animateValue(start, end, duration, onFrame) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const currentValue = progress * (end - start) + start;
+            
+            onFrame(currentValue); // Викликаємо передану функцію з проміжним значенням
+
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+    
     function calculate() {
         // --- 1. Розрахунок загальної кількості годин ---
         let totalHours = 0;
-
-        // Додаємо години за тип проєкту
         const projectType = form.querySelector('input[name="projectType"]:checked').value;
         totalHours += RATES.project[projectType];
-
-        // Додаємо години за тип дизайну
         const designType = form.querySelector('input[name="designType"]:checked').value;
         totalHours += RATES.design[designType];
-
-        // Додаємо години за обрані модулі
         const selectedModules = form.querySelectorAll('input[name="module"]:checked');
         selectedModules.forEach(module => {
             totalHours += RATES.modules[module.value];
         });
 
-        // --- 2. Розрахунок вартості та термінів ---
+        // --- 2. Розрахунок кінцевої вартості ---
         const totalCost = totalHours * RATES.hourlyRate;
-        
-        // Розраховуємо термін: 40 годин на тиждень
-        const maxWeeks = Math.ceil(totalHours / 40);
-        const minWeeks = Math.max(1, Math.floor(totalHours / 40));
 
-        // --- 3. Оновлення результатів на сторінці ---
-        totalCostElem.textContent = `${totalCost} $`;
+        // --- 3. Анімація результатів ---
         
-        if (minWeeks === maxWeeks) {
-            totalTimelineElem.textContent = `${maxWeeks} тиж.`;
-        } else {
-            totalTimelineElem.textContent = `${minWeeks}-${maxWeeks} тиж.`;
-        }
+        // Анімуємо вартість
+        animateValue(previousCost, totalCost, 500, (currentValue) => {
+            totalCostElem.textContent = `${Math.round(currentValue)} $`;
+        });
+
+        // Анімуємо термін, анімуючи загальну кількість годин
+        animateValue(previousTotalHours, totalHours, 500, (currentHours) => {
+            const maxWeeks = Math.ceil(currentHours / 40);
+            const minWeeks = Math.max(1, Math.floor(currentHours / 40));
+
+            if (minWeeks >= maxWeeks) {
+                totalTimelineElem.textContent = `${maxWeeks} тиж.`;
+            } else {
+                totalTimelineElem.textContent = `${minWeeks}-${maxWeeks} тиж.`;
+            }
+        });
+
+        // --- 4. Зберігаємо поточні значення для наступної анімації ---
+        previousCost = totalCost;
+        previousTotalHours = totalHours;
     }
 
-    // Обробник подій для будь-якої зміни у формі
+    // --- Обробник подій ---
     form.addEventListener('change', calculate);
 
-    // Початковий розрахунок при завантаженні сторінки
+    // Початковий розрахунок
     calculate();
 });
