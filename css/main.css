@@ -216,3 +216,18 @@ input[type="checkbox"]:checked::after {
     transform: translateY(2px);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
+/* --- Стилі для іконок в опціях --- */
+.option label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Зберігаємо відступ, який тепер буде між іконкою і текстом */
+}
+
+.option label svg {
+    flex-shrink: 0; /* Забороняємо іконці стискатися */
+    width: 1.2em;
+    height: 1.2em;
+    stroke-width: 2;
+    color: var(--primary-color);
+}
