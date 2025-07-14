@@ -189,3 +189,30 @@ input[type="checkbox"]:checked::after {
         font-size: 1.5rem;
     }
 }
+
+/* --- Стилі для кнопки заклику до дії (CTA) --- */
+.cta-button {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    margin-top: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+    background-color: var(--highlight-color);
+}
+
+.cta-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
