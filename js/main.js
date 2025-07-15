@@ -1,8 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
     const form = document.getElementById('calc-form');
+    // Нижній блок результатів
     const totalCostElem = document.getElementById('total-cost');
     const totalTimelineElem = document.getElementById('total-timeline');
+    // Верхній блок результатів
+    const topTotalCostElem = document.getElementById('top-total-cost');
+    const topTotalTimelineElem = document.getElementById('top-total-timeline');
 
     // --- Configuration ---
     const RATES = {
@@ -33,12 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         window.requestAnimationFrame(step);
     }
-    
+
     // --- Main Calculation and UI Update Function ---
     function handleFormChange(event) {
-        const target = event.target;
+        const target = event ? event.target : null;
 
-        // --- 1. Розрахунок загальної вартості (завжди виконується) ---
+        // --- 1. Розрахунок загальної вартості ---
         let totalHours = 0;
         const projectType = form.querySelector('input[name="projectType"]:checked').value;
         totalHours += RATES.project[projectType];
@@ -52,12 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const totalCost = totalHours * RATES.hourlyRate;
 
-        // Анімація загальних результатів
-        animateValue(previousCost, totalCost, 500, (val) => totalCostElem.textContent = `${Math.round(val)} $`);
+        // Анімація загальних результатів (для обох блоків)
+        animateValue(previousCost, totalCost, 500, (val) => {
+            const roundedVal = Math.round(val);
+            totalCostElem.textContent = `${roundedVal} $`;
+            topTotalCostElem.textContent = `${roundedVal} $`;
+        });
         animateValue(previousTotalHours, totalHours, 500, (val) => {
             const maxWeeks = Math.ceil(val / 40);
             const minWeeks = Math.max(1, Math.floor(val / 40));
-            totalTimelineElem.textContent = minWeeks >= maxWeeks ? `${maxWeeks} тиж.` : `${minWeeks}-${maxWeeks} тиж.`;
+            const timelineText = minWeeks >= maxWeeks ? `${maxWeeks} тиж.` : `${minWeeks}-${maxWeeks} тиж.`;
+            totalTimelineElem.textContent = timelineText;
+            topTotalTimelineElem.textContent = timelineText;
         });
 
         previousCost = totalCost;
@@ -75,20 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const price = hours * RATES.hourlyRate;
                 
                 if (target.checked) {
-                    // Якщо обрано - показуємо постійний індикатор
                     span.textContent = `+${Math.round(price)} $`;
                     span.classList.remove('negative');
                     span.classList.add('positive', 'show');
                 } else {
-                    // Якщо знято - показуємо тимчасовий індикатор
                     span.textContent = `-${Math.round(price)} $`;
                     span.classList.remove('positive');
                     span.classList.add('negative', 'show');
                     
-                    // ОСЬ ТУТ ТИ МОЖЕШ ЗМІНИТИ ЧАС ЗНИКНЕННЯ
                     activeTimers[target.id] = setTimeout(() => {
                         span.classList.remove('show');
-                    }, 3000); // Зараз стоїть 3 секунди
+                    }, 3000);
                 }
             } else if (target.type === 'radio') {
                 const groupName = target.name;
@@ -106,10 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     currentSelections[groupName] = target.value;
 
-                    // І для радіо теж встановлюємо таймер
                     activeTimers[target.id] = setTimeout(() => {
                         span.classList.remove('show');
-                    }, 3000); // 3 секунди
+                    }, 3000);
                 }
             }
         }
@@ -118,6 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
     form.addEventListener('change', handleFormChange);
 
-    // Початковий розрахунок (без події, щоб не показувати індикатори)
-    handleFormChange({target: null});
+    // Початковий розрахунок
+    handleFormChange();
 });
