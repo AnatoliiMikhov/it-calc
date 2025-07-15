@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Отримуємо доступ до елементів DOM ---
+    // --- DOM Elements ---
     const form = document.getElementById('calc-form');
     const totalCostElem = document.getElementById('total-cost');
     const totalTimelineElem = document.getElementById('total-timeline');
 
-    // --- Єдина конфігурація з годинами та ставкою ---
+    // --- Configuration ---
     const RATES = {
         hourlyRate: 30,
         project: { landing: 20, portfolio: 35, corporate: 60, ecommerce: 100 },
@@ -12,35 +12,58 @@ document.addEventListener('DOMContentLoaded', () => {
         modules: { feedbackForm: 5, gallery: 8, blog: 25, socialMedia: 6, basicSeo: 12 }
     };
 
-    // --- Змінні для зберігання попередніх значень для анімації ---
+    // --- State Variables ---
     let previousCost = 0;
     let previousTotalHours = 0;
+    let activeTimers = {};
+    
+    // Зберігаємо поточний вибір радіокнопок
+    let currentSelections = {};
+    form.querySelectorAll('input[type="radio"]').forEach(radio => {
+        if (radio.checked) {
+            currentSelections[radio.name] = radio.value;
+        }
+    });
 
-    /**
-     * Універсальна функція для анімації числового значення.
-     * @param {number} start - Початкове значення.
-     * @param {number} end - Кінцеве значення.
-     * @param {number} duration - Тривалість анімації в мс.
-     * @param {function(number)} onFrame - Функція, що викликається на кожному кадрі з поточним значенням.
-     */
+
+    // --- Helper Functions ---
     function animateValue(start, end, duration, onFrame) {
         let startTimestamp = null;
         const step = (timestamp) => {
             if (!startTimestamp) startTimestamp = timestamp;
             const progress = Math.min((timestamp - startTimestamp) / duration, 1);
             const currentValue = progress * (end - start) + start;
-            
-            onFrame(currentValue); // Викликаємо передану функцію з проміжним значенням
-
+            onFrame(currentValue);
             if (progress < 1) {
                 window.requestAnimationFrame(step);
             }
         };
         window.requestAnimationFrame(step);
     }
-    
+
+    function showPriceChange(element, price) {
+        const span = element.closest('.option').querySelector('.price-change');
+        if (!span) return;
+
+        if (activeTimers[element.id]) {
+            clearTimeout(activeTimers[element.id]);
+        }
+        
+        const isPositive = price >= 0;
+        span.textContent = `${isPositive ? '+' : ''}${Math.round(price)} $`;
+        span.classList.remove('positive', 'negative');
+
+        if (price !== 0) {
+            span.classList.add(isPositive ? 'positive' : 'negative', 'show');
+        }
+
+        activeTimers[element.id] = setTimeout(() => {
+            span.classList.remove('show');
+        }, 1500);
+    }
+
+    // --- Main Calculation Function ---
     function calculate() {
-        // --- 1. Розрахунок загальної кількості годин ---
         let totalHours = 0;
         const projectType = form.querySelector('input[name="projectType"]:checked').value;
         totalHours += RATES.project[projectType];
@@ -51,21 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
             totalHours += RATES.modules[module.value];
         });
 
-        // --- 2. Розрахунок кінцевої вартості ---
         const totalCost = totalHours * RATES.hourlyRate;
 
-        // --- 3. Анімація результатів ---
-        
-        // Анімуємо вартість
         animateValue(previousCost, totalCost, 500, (currentValue) => {
             totalCostElem.textContent = `${Math.round(currentValue)} $`;
         });
 
-        // Анімуємо термін, анімуючи загальну кількість годин
         animateValue(previousTotalHours, totalHours, 500, (currentHours) => {
             const maxWeeks = Math.ceil(currentHours / 40);
             const minWeeks = Math.max(1, Math.floor(currentHours / 40));
-
             if (minWeeks >= maxWeeks) {
                 totalTimelineElem.textContent = `${maxWeeks} тиж.`;
             } else {
@@ -73,14 +90,45 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- 4. Зберігаємо поточні значення для наступної анімації ---
         previousCost = totalCost;
         previousTotalHours = totalHours;
     }
 
-    // --- Обробник подій ---
+    // --- Event Listeners ---
+    form.addEventListener('click', (event) => {
+        const target = event.target;
+        if (target.tagName !== 'INPUT') return;
+
+        const value = target.value;
+        let priceChange = 0;
+
+        if (target.type === 'checkbox') {
+            const hours = RATES.modules[value] || 0;
+            priceChange = hours * RATES.hourlyRate;
+            if (!target.checked) {
+                priceChange = -priceChange;
+            }
+            showPriceChange(target, priceChange);
+
+        } else if (target.type === 'radio') {
+            const groupName = target.name;
+            const previousValue = currentSelections[groupName];
+
+            if (value !== previousValue) {
+                const ratesKey = groupName.replace('Type', ''); // 'projectType' -> 'project'
+                
+                const previousHours = RATES[ratesKey][previousValue] || 0;
+                const newHours = RATES[ratesKey][value] || 0;
+                
+                priceChange = (newHours - previousHours) * RATES.hourlyRate;
+                
+                currentSelections[groupName] = value; // Оновлюємо вибір
+                showPriceChange(target, priceChange);
+            }
+        }
+    });
+    
     form.addEventListener('change', calculate);
 
-    // Початковий розрахунок
     calculate();
 });
