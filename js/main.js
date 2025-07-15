@@ -16,15 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let previousCost = 0;
     let previousTotalHours = 0;
     let activeTimers = {};
-    
-    // Зберігаємо поточний вибір радіокнопок
     let currentSelections = {};
-    form.querySelectorAll('input[type="radio"]').forEach(radio => {
-        if (radio.checked) {
-            currentSelections[radio.name] = radio.value;
-        }
+    form.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+        currentSelections[radio.name] = radio.value;
     });
-
 
     // --- Helper Functions ---
     function animateValue(start, end, duration, onFrame) {
@@ -34,41 +29,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const progress = Math.min((timestamp - startTimestamp) / duration, 1);
             const currentValue = progress * (end - start) + start;
             onFrame(currentValue);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
+            if (progress < 1) window.requestAnimationFrame(step);
         };
         window.requestAnimationFrame(step);
     }
+    
+    // --- Main Calculation and UI Update Function ---
+    function handleFormChange(event) {
+        const target = event.target;
 
-    function showPriceChange(element, price) {
-        const span = element.closest('.option').querySelector('.price-change');
-        if (!span) return;
-
-        if (activeTimers[element.id]) {
-            clearTimeout(activeTimers[element.id]);
-        }
-        
-        const isPositive = price >= 0;
-        span.textContent = `${isPositive ? '+' : ''}${Math.round(price)} $`;
-        span.classList.remove('positive', 'negative');
-
-        if (price !== 0) {
-            span.classList.add(isPositive ? 'positive' : 'negative', 'show');
-        }
-
-        activeTimers[element.id] = setTimeout(() => {
-            span.classList.remove('show');
-        }, 1500);
-    }
-
-    // --- Main Calculation Function ---
-    function calculate() {
+        // --- 1. Розрахунок загальної вартості (завжди виконується) ---
         let totalHours = 0;
         const projectType = form.querySelector('input[name="projectType"]:checked').value;
         totalHours += RATES.project[projectType];
         const designType = form.querySelector('input[name="designType"]:checked').value;
         totalHours += RATES.design[designType];
+        
         const selectedModules = form.querySelectorAll('input[name="module"]:checked');
         selectedModules.forEach(module => {
             totalHours += RATES.modules[module.value];
@@ -76,59 +52,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const totalCost = totalHours * RATES.hourlyRate;
 
-        animateValue(previousCost, totalCost, 500, (currentValue) => {
-            totalCostElem.textContent = `${Math.round(currentValue)} $`;
-        });
-
-        animateValue(previousTotalHours, totalHours, 500, (currentHours) => {
-            const maxWeeks = Math.ceil(currentHours / 40);
-            const minWeeks = Math.max(1, Math.floor(currentHours / 40));
-            if (minWeeks >= maxWeeks) {
-                totalTimelineElem.textContent = `${maxWeeks} тиж.`;
-            } else {
-                totalTimelineElem.textContent = `${minWeeks}-${maxWeeks} тиж.`;
-            }
+        // Анімація загальних результатів
+        animateValue(previousCost, totalCost, 500, (val) => totalCostElem.textContent = `${Math.round(val)} $`);
+        animateValue(previousTotalHours, totalHours, 500, (val) => {
+            const maxWeeks = Math.ceil(val / 40);
+            const minWeeks = Math.max(1, Math.floor(val / 40));
+            totalTimelineElem.textContent = minWeeks >= maxWeeks ? `${maxWeeks} тиж.` : `${minWeeks}-${maxWeeks} тиж.`;
         });
 
         previousCost = totalCost;
         previousTotalHours = totalHours;
+
+        // --- 2. Оновлення індивідуальних індикаторів ціни ---
+        if (target && target.tagName === 'INPUT') {
+            const span = target.closest('.option').querySelector('.price-change');
+            if (!span) return;
+
+            if (activeTimers[target.id]) clearTimeout(activeTimers[target.id]);
+
+            if (target.type === 'checkbox') {
+                const hours = RATES.modules[target.value] || 0;
+                const price = hours * RATES.hourlyRate;
+                
+                if (target.checked) {
+                    // Якщо обрано - показуємо постійний індикатор
+                    span.textContent = `+${Math.round(price)} $`;
+                    span.classList.remove('negative');
+                    span.classList.add('positive', 'show');
+                } else {
+                    // Якщо знято - показуємо тимчасовий індикатор
+                    span.textContent = `-${Math.round(price)} $`;
+                    span.classList.remove('positive');
+                    span.classList.add('negative', 'show');
+                    
+                    // ОСЬ ТУТ ТИ МОЖЕШ ЗМІНИТИ ЧАС ЗНИКНЕННЯ
+                    activeTimers[target.id] = setTimeout(() => {
+                        span.classList.remove('show');
+                    }, 3000); // Зараз стоїть 3 секунди
+                }
+            } else if (target.type === 'radio') {
+                const groupName = target.name;
+                const previousValue = currentSelections[groupName];
+                
+                if (target.value !== previousValue) {
+                    const ratesKey = groupName.replace('Type', '');
+                    const previousHours = RATES[ratesKey][previousValue] || 0;
+                    const newHours = RATES[ratesKey][target.value] || 0;
+                    const priceChange = (newHours - previousHours) * RATES.hourlyRate;
+                    
+                    span.textContent = `${priceChange >= 0 ? '+' : ''}${Math.round(priceChange)} $`;
+                    span.classList.remove('positive', 'negative');
+                    span.classList.add(priceChange >= 0 ? 'positive' : 'negative', 'show');
+                    
+                    currentSelections[groupName] = target.value;
+
+                    // І для радіо теж встановлюємо таймер
+                    activeTimers[target.id] = setTimeout(() => {
+                        span.classList.remove('show');
+                    }, 3000); // 3 секунди
+                }
+            }
+        }
     }
 
     // --- Event Listeners ---
-    form.addEventListener('click', (event) => {
-        const target = event.target;
-        if (target.tagName !== 'INPUT') return;
+    form.addEventListener('change', handleFormChange);
 
-        const value = target.value;
-        let priceChange = 0;
-
-        if (target.type === 'checkbox') {
-            const hours = RATES.modules[value] || 0;
-            priceChange = hours * RATES.hourlyRate;
-            if (!target.checked) {
-                priceChange = -priceChange;
-            }
-            showPriceChange(target, priceChange);
-
-        } else if (target.type === 'radio') {
-            const groupName = target.name;
-            const previousValue = currentSelections[groupName];
-
-            if (value !== previousValue) {
-                const ratesKey = groupName.replace('Type', ''); // 'projectType' -> 'project'
-                
-                const previousHours = RATES[ratesKey][previousValue] || 0;
-                const newHours = RATES[ratesKey][value] || 0;
-                
-                priceChange = (newHours - previousHours) * RATES.hourlyRate;
-                
-                currentSelections[groupName] = value; // Оновлюємо вибір
-                showPriceChange(target, priceChange);
-            }
-        }
-    });
-    
-    form.addEventListener('change', calculate);
-
-    calculate();
+    // Початковий розрахунок (без події, щоб не показувати індикатори)
+    handleFormChange({target: null});
 });
