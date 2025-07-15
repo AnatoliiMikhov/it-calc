@@ -1,14 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
     const form = document.getElementById('calc-form');
-    // Нижній блок результатів
     const totalCostElem = document.getElementById('total-cost');
     const totalTimelineElem = document.getElementById('total-timeline');
-    // Верхній блок результатів
     const topTotalCostElem = document.getElementById('top-total-cost');
     const topTotalTimelineElem = document.getElementById('top-total-timeline');
+    // Елементи для теми
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
 
-    // --- Configuration ---
+    // --- Theme Switcher Logic ---
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            body.classList.add('dark-theme');
+            themeToggle.checked = true;
+        } else {
+            body.classList.remove('dark-theme');
+            themeToggle.checked = false;
+        }
+    };
+
+    themeToggle.addEventListener('change', () => {
+        const selectedTheme = themeToggle.checked ? 'dark' : 'light';
+        localStorage.setItem('theme', selectedTheme);
+        applyTheme(selectedTheme);
+    });
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+
+    // --- Calculator Logic ---
     const RATES = {
         hourlyRate: 30,
         project: { landing: 20, portfolio: 35, corporate: 60, ecommerce: 100 },
@@ -16,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modules: { feedbackForm: 5, gallery: 8, blog: 25, socialMedia: 6, basicSeo: 12 }
     };
 
-    // --- State Variables ---
     let previousCost = 0;
     let previousTotalHours = 0;
     let activeTimers = {};
@@ -25,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSelections[radio.name] = radio.value;
     });
 
-    // --- Helper Functions ---
     function animateValue(start, end, duration, onFrame) {
         let startTimestamp = null;
         const step = (timestamp) => {
@@ -37,12 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         window.requestAnimationFrame(step);
     }
-
-    // --- Main Calculation and UI Update Function ---
+    
     function handleFormChange(event) {
         const target = event ? event.target : null;
 
-        // --- 1. Розрахунок загальної вартості ---
         let totalHours = 0;
         const projectType = form.querySelector('input[name="projectType"]:checked').value;
         totalHours += RATES.project[projectType];
@@ -56,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const totalCost = totalHours * RATES.hourlyRate;
 
-        // Анімація загальних результатів (для обох блоків)
         animateValue(previousCost, totalCost, 500, (val) => {
             const roundedVal = Math.round(val);
             totalCostElem.textContent = `${roundedVal} $`;
@@ -73,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
         previousCost = totalCost;
         previousTotalHours = totalHours;
 
-        // --- 2. Оновлення індивідуальних індикаторів ціни ---
         if (target && target.tagName === 'INPUT') {
             const span = target.closest('.option').querySelector('.price-change');
             if (!span) return;
@@ -108,7 +124,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const priceChange = (newHours - previousHours) * RATES.hourlyRate;
                     
                     span.textContent = `${priceChange >= 0 ? '+' : ''}${Math.round(priceChange)} $`;
-                    span.classList.remove('positive', 'negative');
+                    span.classList.remove('positive');
+                    span.classList.remove('negative');
                     span.classList.add(priceChange >= 0 ? 'positive' : 'negative', 'show');
                     
                     currentSelections[groupName] = target.value;
@@ -121,9 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Event Listeners ---
     form.addEventListener('change', handleFormChange);
 
-    // Початковий розрахунок
     handleFormChange();
 });
