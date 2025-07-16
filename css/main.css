@@ -207,3 +207,114 @@ input[type="checkbox"]:checked::after { content: '✔'; color: white; font-size:
     h1 { font-size: 1.5rem; }
     .theme-switcher { top: 1rem; right: 1rem; }
 }
+
+/* --- Стилі Модального вікна --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Дозволяє клікати крізь фон, коли він невидимий */
+}
+.modal-overlay:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto; /* Повертає можливість взаємодії, коли вікно видиме */
+}
+.modal-content {
+    background: var(--container-bg);
+    padding: 2rem;
+    border-radius: 15px;
+    border: 1px solid var(--container-border);
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+.modal-overlay:not(.hidden) .modal-content {
+    transform: scale(1);
+}
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-color);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+.modal-close-btn:hover {
+    opacity: 1;
+}
+.modal-content h2 { margin-top: 0; }
+.modal-content p {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.form-group label, .form-group-checkbox label {
+    font-weight: 500;
+}
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    background-color: var(--option-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+.form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.hidden {
+    display: none !important;
+}
+
+/* Виправлення кастомного чекбоксу в формі */
+.form-group-checkbox input[type="checkbox"] {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+/* --- Індикатор обов'язкового поля --- */
+.required-asterisk {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-left: 4px;
+    transition: color 0.3s ease;
+}

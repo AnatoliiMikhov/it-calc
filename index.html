@@ -116,6 +116,44 @@
 
     </main>
 
+    <!-- Модальне вікно -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+            <h2>Замовити точний розрахунок</h2>
+            <p>Заповніть форму, і ми надішлемо вам детальну пропозицію.</p>
+            
+            <form name="contact" class="modal-form" netlify>
+                <!-- Приховані поля для передачі даних калькулятора -->
+                <input type="hidden" name="calculated-cost">
+                <input type="hidden" name="calculated-timeline">
+                <input type="hidden" name="selected-options">
+
+                <div class="form-group">
+                    <label for="name">Ваше ім'я:<span class="required-asterisk">*</span></label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Ваш Email:<span class="required-asterisk">*</span></label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="call-request">
+                    <label for="call-request">Замовити дзвінок</label>
+                </div>
+                <div id="phone-group" class="form-group hidden">
+                    <label for="phone">Ваш телефон:</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="comment">Коментар:</label>
+                    <textarea id="comment" name="comment" rows="4"></textarea>
+                </div>
+                <button type="submit" class="cta-button">Надіслати заявку</button>
+            </form>
+        </div>
+    </div>
+
     <script src="js/main.js" defer></script>
 </body>
 </html>

@@ -5,9 +5,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalTimelineElem = document.getElementById('total-timeline');
     const topTotalCostElem = document.getElementById('top-total-cost');
     const topTotalTimelineElem = document.getElementById('top-total-timeline');
-    // Елементи для теми
+    const orderBtn = document.getElementById('order-btn');
+    
+    // Theme Elements
     const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
+
+    // Modal Elements
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const callRequestCheckbox = document.getElementById('call-request');
+    const phoneGroup = document.getElementById('phone-group');
+    
+    // Modal Form Hidden Fields
+    const hiddenCostInput = document.querySelector('form[name="contact"] input[name="calculated-cost"]');
+    const hiddenTimelineInput = document.querySelector('form[name="contact"] input[name="calculated-timeline"]');
+    const hiddenOptionsInput = document.querySelector('form[name="contact"] input[name="selected-options"]');
+
 
     // --- Theme Switcher Logic ---
     const applyTheme = (theme) => {
@@ -140,5 +154,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('change', handleFormChange);
 
+    // --- Modal Logic ---
+    function openModal() {
+        // 1. Get current calculator data
+        const cost = totalCostElem.textContent;
+        const timeline = totalTimelineElem.textContent;
+        
+        let options = [];
+        form.querySelectorAll('input:checked').forEach(input => {
+            const label = form.querySelector(`label[for="${input.id}"]`);
+            if (label) {
+                // Очищуємо SVG іконку з тексту
+                const labelClone = label.cloneNode(true);
+                const svg = labelClone.querySelector('svg');
+                if (svg) {
+                    svg.remove();
+                }
+                options.push(labelClone.textContent.trim());
+            }
+        });
+
+        // 2. Populate hidden fields
+        hiddenCostInput.value = cost;
+        hiddenTimelineInput.value = timeline;
+        hiddenOptionsInput.value = options.join(', ');
+
+        // 3. Show modal
+        modalOverlay.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        modalOverlay.classList.add('hidden');
+    }
+
+    orderBtn.addEventListener('click', openModal);
+    modalCloseBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (event) => {
+        if (event.target === modalOverlay) {
+            closeModal();
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+
+    callRequestCheckbox.addEventListener('change', () => {
+        phoneGroup.classList.toggle('hidden', !callRequestCheckbox.checked);
+    });
+
+    // Initial calculation
     handleFormChange();
 });
