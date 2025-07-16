@@ -1,3 +1,19 @@
+/* --- Modern CSS Reset --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+
 /* --- Змінні для Світлої Теми (За замовчуванням) --- */
 :root {
     --bg-gradient: linear-gradient(135deg, #e0f2f1, #b2dfdb); /* Soft Teal Gradient */
@@ -34,7 +50,6 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg-gradient);
     color: var(--text-color);
-    margin: 0;
     padding: 2rem;
     display: flex;
     justify-content: center;
@@ -202,10 +217,22 @@ input[type="checkbox"]:checked::after { content: '✔'; color: white; font-size:
 
 /* --- Адаптивність --- */
  @media (max-width: 600px) {
-    body { padding: 1rem; }
-    .calculator-container { padding: 1.5rem; }
-    h1 { font-size: 1.5rem; }
-    .theme-switcher { top: 1rem; right: 1rem; }
+    body {
+        padding: 1rem;
+    }
+    .calculator-container {
+        padding: 1.5rem;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+    .theme-switcher {
+        top: 1rem;
+        right: 1rem;
+    }
+    .cta-button {
+        font-size: 1rem; /* Зменшуємо шрифт на кнопці для мобільних */
+    }
 }
 
 /* --- Стилі Модального вікна --- */
@@ -358,4 +385,11 @@ input[type="checkbox"]:checked::after { content: '✔'; color: white; font-size:
 }
 .site-footer a:hover {
     opacity: 1;
+}
+
+.cta-button.static-page-button {
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+    text-decoration: none;
 }
