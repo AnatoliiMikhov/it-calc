@@ -318,3 +318,44 @@ input[type="checkbox"]:checked::after { content: '✔'; color: white; font-size:
     margin-left: 4px;
     transition: color 0.3s ease;
 }
+
+/* --- Стилі для статичних сторінок та футера --- */
+.static-page-container {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    text-align: center;
+}
+.static-page-container h1 {
+    margin-bottom: 1.5rem;
+}
+.static-page-container p, .static-page-container ul {
+    text-align: left;
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.static-page-container ul {
+    padding-left: 20px;
+}
+.static-page-container .last-updated {
+    text-align: center;
+    opacity: 0.7;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.site-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--secondary-color);
+}
+.site-footer a {
+    color: var(--text-color);
+    opacity: 0.8;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+.site-footer a:hover {
+    opacity: 1;
+}
