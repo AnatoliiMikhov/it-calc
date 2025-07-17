@@ -8,20 +8,14 @@
     <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
-    <h1>Вхід в адмін-панель</h1>
+    <!-- Цей div буде автоматично заповнений статусом користувача (напр. "Logged in as user@example.com") -->
+    <div data-netlify-identity-menu></div>
+
+    <h1>Адмін-панель</h1>
     <p>Тут буде форма для редагування тарифів.</p>
 
-    <!-- Цей скрипт ініціалізує віджет, якщо користувач не увійшов в систему -->
-    <script>
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-    </script>
+    <!-- Кнопка для ручного відкриття віджета -->
+    <button onclick="netlifyIdentity.open();">Увійти / Зареєструватися</button>
+
 </body>
 </html>
