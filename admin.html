@@ -4,18 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Адмін-панель</title>
-    <!-- Підключення скрипта Netlify Identity Widget -->
-    <script type="text/javascript" src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script type="text/javascript" src="[https://identity.netlify.com/v1/netlify-identity-widget.js](https://identity.netlify.com/v1/netlify-identity-widget.js)"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f6; color: #333; padding: 2rem; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h1, h2 { color: #00796b; }
+        form { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        fieldset { border: 1px solid #ddd; border-radius: 4px; padding: 1rem; }
+        legend { font-weight: bold; color: #004d40; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 0.5rem; font-weight: 500; }
+        input[type="number"] { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        .button-container { grid-column: 1 / -1; text-align: right; }
+        button { background-color: #00796b; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; transition: background-color 0.2s; }
+        button:hover { background-color: #004d40; }
+        #loading, #auth-message { text-align: center; font-size: 1.2rem; padding: 2rem; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-    <!-- Цей div буде автоматично заповнений статусом користувача (напр. "Logged in as user@example.com") -->
-    <div data-netlify-identity-menu></div>
+    <div class="container">
+        <div data-netlify-identity-menu></div>
+        <h1>Адмін-панель: Управління тарифами</h1>
 
-    <h1>Адмін-панель</h1>
-    <p>Тут буде форма для редагування тарифів.</p>
+        <div id="auth-message">
+            <p>Будь ласка, увійдіть в систему, щоб побачити тарифи.</p>
+        </div>
 
-    <!-- Кнопка для ручного відкриття віджета -->
-    <button onclick="netlifyIdentity.open();">Увійти / Зареєструватися</button>
+        <div id="loading" class="hidden">
+            <p>Завантаження даних...</p>
+        </div>
 
+        <form id="rates-form" class="hidden">
+            <fieldset>
+                <legend>Базова ставка</legend>
+                <div class="form-group">
+                    <label for="hourlyRate">Погодинна ставка ($)</label>
+                    <input type="number" id="hourlyRate" name="hourlyRate" required>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Тип проєкту (години)</legend>
+                <div class="form-group">
+                    <label for="project-landing">Лендінг</label>
+                    <input type="number" id="project-landing" name="project.landing" required>
+                </div>
+                <div class="form-group">
+                    <label for="project-portfolio">Сайт-візитка</label>
+                    <input type="number" id="project-portfolio" name="project.portfolio" required>
+                </div>
+                <div class="form-group">
+                    <label for="project-corporate">Корпоративний сайт</label>
+                    <input type="number" id="project-corporate" name="project.corporate" required>
+                </div>
+                <div class="form-group">
+                    <label for="project-ecommerce">Інтернет-магазин</label>
+                    <input type="number" id="project-ecommerce" name="project.ecommerce" required>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Дизайн (години)</legend>
+                <div class="form-group">
+                    <label for="design-template">Шаблонний</label>
+                    <input type="number" id="design-template" name="design.template" required>
+                </div>
+                <div class="form-group">
+                    <label for="design-unique">Унікальний</label>
+                    <input type="number" id="design-unique" name="design.unique" required>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Модулі (години)</legend>
+                <div class="form-group">
+                    <label for="modules-feedbackForm">Форма зв'язку</label>
+                    <input type="number" id="modules-feedbackForm" name="modules.feedbackForm" required>
+                </div>
+                <div class="form-group">
+                    <label for="modules-gallery">Галерея</label>
+                    <input type="number" id="modules-gallery" name="modules.gallery" required>
+                </div>
+                <div class="form-group">
+                    <label for="modules-blog">Блог</label>
+                    <input type="number" id="modules-blog" name="modules.blog" required>
+                </div>
+                <div class="form-group">
+                    <label for="modules-socialMedia">Соцмережі</label>
+                    <input type="number" id="modules-socialMedia" name="modules.socialMedia" required>
+                </div>
+                <div class="form-group">
+                    <label for="modules-basicSeo">Базове SEO</label>
+                    <input type="number" id="modules-basicSeo" name="modules.basicSeo" required>
+                </div>
+            </fieldset>
+            
+            <div class="button-container">
+                <button type="submit">Зберегти зміни</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="/js/admin.js"></script>
 </body>
 </html>
