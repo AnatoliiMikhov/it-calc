@@ -13,3 +13,5 @@ build/
 
 # Environment variables file (important for security)
 .env
+# Local Netlify folder
+.netlify
