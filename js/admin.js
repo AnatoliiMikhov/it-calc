@@ -72,4 +72,74 @@ document.addEventListener('DOMContentLoaded', () => {
     window.netlifyIdentity.on('logout', () => {
         location.reload(); // Перезавантажуємо сторінку після виходу
     });
+
+    // Обробник події для відправки форми
+    ratesForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Запобігаємо стандартній відправці форми
+
+        const submitButton = ratesForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.textContent;
+        submitButton.textContent = 'Збереження...';
+        submitButton.disabled = true;
+
+        // 1. Збираємо дані з форми у правильну структуру
+        const formData = new FormData(ratesForm);
+        const newRates = {
+            project: {},
+            design: {},
+            modules: {}
+        };
+
+        for (const [key, value] of formData.entries()) {
+            if (key.includes('.')) {
+                const [category, subKey] = key.split('.');
+                newRates[category][subKey] = parseFloat(value);
+            } else {
+                newRates[key] = parseFloat(value);
+            }
+        }
+
+        // 2. Отримуємо токен для аутентифікації
+        const user = window.netlifyIdentity.currentUser();
+        const token = user ? await user.jwt() : null;
+
+        if (!token) {
+            alert('Помилка: ви не авторизовані. Будь ласка, оновіть сторінку і увійдіть знову.');
+            submitButton.textContent = originalButtonText;
+            submitButton.disabled = false;
+            return;
+        }
+
+        // 3. Відправляємо дані на серверну функцію
+        try {
+            const response = await fetch('/.netlify/functions/updateRates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Дуже важливо для безпеки!
+                },
+                body: JSON.stringify(newRates)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Помилка сервера');
+            }
+
+            const result = await response.json();
+            console.log('Server response:', result);
+            
+            submitButton.textContent = 'Збережено!';
+            setTimeout(() => {
+                submitButton.textContent = originalButtonText;
+            }, 2000);
+
+        } catch (error) {
+            console.error('Failed to update rates:', error);
+            alert(`Не вдалося зберегти тарифи: ${error.message}`);
+            submitButton.textContent = originalButtonText;
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
 });
