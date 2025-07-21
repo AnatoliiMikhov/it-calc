@@ -80,3 +80,44 @@ button:hover {
 #auth-message button {
   margin-top: 1rem;
 }
+
+/* Стилізація віджета Netlify Identity (Фінальна версія) */
+[data-netlify-identity-menu] {
+    /* Розміщуємо блок на початку контейнера і додаємо відступ знизу */
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: flex-start; /* Вирівнюємо по лівому краю */
+}
+
+[data-netlify-identity-menu] ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+/* Загальний стиль для всіх елементів меню (і для тексту, і для кнопок) */
+[data-netlify-identity-menu] li {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    background-color: #e0f2f1; /* Світло-бірюзовий фон */
+    color: #004d40;           /* Темний бірюзовий текст */
+    border-radius: 5px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+/* Стиль для посилань всередині меню (Log out, Sign up, etc.) */
+[data-netlify-identity-menu] a {
+    color: #00796b; /* Яскравіший бірюзовий для посилань */
+    text-decoration: none;
+    display: block;
+}
+
+/* Ефект при наведенні на елемент з посиланням */
+[data-netlify-identity-menu] li:has(a):hover {
+    background-color: #b2dfdb;
+}
