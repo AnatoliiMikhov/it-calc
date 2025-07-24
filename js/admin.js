@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const result = await response.json();
-            console.log('Server response:', result);
+            
             
             submitButton.textContent = 'Збережено!';
             setTimeout(() => {
