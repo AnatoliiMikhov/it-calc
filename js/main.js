@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // --- DOM Elements ---
     const form = document.getElementById('calc-form');
     const totalCostElem = document.getElementById('total-cost');
@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const topTotalCostElem = document.getElementById('top-total-cost');
     const topTotalTimelineElem = document.getElementById('top-total-timeline');
     const orderBtn = document.getElementById('order-btn');
+    const container = document.querySelector('.calculator-container');
     
     // Theme Elements
     const themeToggle = document.getElementById('theme-toggle');
@@ -17,11 +18,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const callRequestCheckbox = document.getElementById('call-request');
     const phoneGroup = document.getElementById('phone-group');
     
-    // Modal Form Hidden Fields
     const hiddenCostInput = document.querySelector('form[name="contact"] input[name="calculated-cost"]');
     const hiddenTimelineInput = document.querySelector('form[name="contact"] input[name="calculated-timeline"]');
     const hiddenOptionsInput = document.querySelector('form[name="contact"] input[name="selected-options"]');
 
+    // --- State Variables ---
+    let RATES = null; // Тепер RATES завантажуються асинхронно
+    let previousCost = 0;
+    let previousTotalHours = 0;
+    let activeTimers = {};
+    let currentSelections = {};
 
     // --- Theme Switcher Logic ---
     const applyTheme = (theme) => {
@@ -43,23 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'light';
     applyTheme(savedTheme);
 
-
     // --- Calculator Logic ---
-    const RATES = {
-        hourlyRate: 30,
-        project: { landing: 20, portfolio: 35, corporate: 60, ecommerce: 100 },
-        design: { template: 15, unique: 40 },
-        modules: { feedbackForm: 5, gallery: 8, blog: 25, socialMedia: 6, basicSeo: 12 }
-    };
-
-    let previousCost = 0;
-    let previousTotalHours = 0;
-    let activeTimers = {};
-    let currentSelections = {};
-    form.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-        currentSelections[radio.name] = radio.value;
-    });
-
     function animateValue(start, end, duration, onFrame) {
         let startTimestamp = null;
         const step = (timestamp) => {
@@ -73,9 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function handleFormChange(event) {
-        const target = event ? event.target : null;
+        if (!RATES) return; // Не робити розрахунків, поки тарифи не завантажено
 
+        const target = event ? event.target : null;
         let totalHours = 0;
+        
         const projectType = form.querySelector('input[name="projectType"]:checked').value;
         totalHours += RATES.project[projectType];
         const designType = form.querySelector('input[name="designType"]:checked').value;
@@ -107,13 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target && target.tagName === 'INPUT') {
             const span = target.closest('.option').querySelector('.price-change');
             if (!span) return;
-
             if (activeTimers[target.id]) clearTimeout(activeTimers[target.id]);
 
             if (target.type === 'checkbox') {
                 const hours = RATES.modules[target.value] || 0;
                 const price = hours * RATES.hourlyRate;
-                
                 if (target.checked) {
                     span.textContent = `+${Math.round(price)} $`;
                     span.classList.remove('negative');
@@ -122,31 +112,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     span.textContent = `-${Math.round(price)} $`;
                     span.classList.remove('positive');
                     span.classList.add('negative', 'show');
-                    
-                    activeTimers[target.id] = setTimeout(() => {
-                        span.classList.remove('show');
-                    }, 3000);
+                    activeTimers[target.id] = setTimeout(() => span.classList.remove('show'), 3000);
                 }
             } else if (target.type === 'radio') {
                 const groupName = target.name;
                 const previousValue = currentSelections[groupName];
-                
                 if (target.value !== previousValue) {
                     const ratesKey = groupName.replace('Type', '');
                     const previousHours = RATES[ratesKey][previousValue] || 0;
                     const newHours = RATES[ratesKey][target.value] || 0;
                     const priceChange = (newHours - previousHours) * RATES.hourlyRate;
-                    
                     span.textContent = `${priceChange >= 0 ? '+' : ''}${Math.round(priceChange)} $`;
-                    span.classList.remove('positive');
-                    span.classList.remove('negative');
+                    span.classList.remove('positive', 'negative');
                     span.classList.add(priceChange >= 0 ? 'positive' : 'negative', 'show');
-                    
                     currentSelections[groupName] = target.value;
-
-                    activeTimers[target.id] = setTimeout(() => {
-                        span.classList.remove('show');
-                    }, 3000);
+                    activeTimers[target.id] = setTimeout(() => span.classList.remove('show'), 3000);
                 }
             }
         }
@@ -156,30 +136,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Modal Logic ---
     function openModal() {
-        // 1. Get current calculator data
         const cost = totalCostElem.textContent;
         const timeline = totalTimelineElem.textContent;
-        
         let options = [];
         form.querySelectorAll('input:checked').forEach(input => {
             const label = form.querySelector(`label[for="${input.id}"]`);
             if (label) {
-                // Очищуємо SVG іконку з тексту
                 const labelClone = label.cloneNode(true);
                 const svg = labelClone.querySelector('svg');
-                if (svg) {
-                    svg.remove();
-                }
+                if (svg) svg.remove();
                 options.push(labelClone.textContent.trim());
             }
         });
-
-        // 2. Populate hidden fields
         hiddenCostInput.value = cost;
         hiddenTimelineInput.value = timeline;
         hiddenOptionsInput.value = options.join(', ');
-
-        // 3. Show modal
         modalOverlay.classList.remove('hidden');
     }
 
@@ -190,20 +161,33 @@ document.addEventListener('DOMContentLoaded', () => {
     orderBtn.addEventListener('click', openModal);
     modalCloseBtn.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', (event) => {
-        if (event.target === modalOverlay) {
-            closeModal();
-        }
+        if (event.target === modalOverlay) closeModal();
     });
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !modalOverlay.classList.contains('hidden')) {
-            closeModal();
-        }
+        if (event.key === 'Escape' && !modalOverlay.classList.contains('hidden')) closeModal();
     });
 
     callRequestCheckbox.addEventListener('change', () => {
         phoneGroup.classList.toggle('hidden', !callRequestCheckbox.checked);
     });
 
-    // Initial calculation
-    handleFormChange();
+    // --- Initial Data Loading ---
+    try {
+        const response = await fetch('/.netlify/functions/getRates');
+        if (!response.ok) throw new Error('Failed to load rates');
+        RATES = await response.json();
+        
+        // Робимо перший розрахунок після завантаження тарифів
+        form.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+            currentSelections[radio.name] = radio.value;
+        });
+        handleFormChange();
+        
+        // Показуємо калькулятор після того, як все готово
+        container.style.opacity = 1;
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<h1>Помилка завантаження</h1><p>Не вдалося завантажити тарифи. Спробуйте оновити сторінку пізніше.</p>';
+        container.style.opacity = 1;
+    }
 });

@@ -393,3 +393,28 @@ input[type="checkbox"]:checked::after { content: '✔'; color: white; font-size:
     margin-right: auto;
     text-decoration: none;
 }
+
+/* --- Оновлені стилі для футера --- */
+.footer-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem; /* Відстань між посиланнями */
+}
+
+.site-footer a {
+    font-size: 0.9rem; /* Трохи зменшуємо шрифт */
+    position: relative;
+}
+
+/* Додаємо елегантний розділювач через псевдо-елемент */
+.footer-nav a:not(:last-child)::after {
+    content: '|';
+    position: absolute;
+    right: -0.75rem; /* Половина від gap */
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.4;
+    color: var(--text-color);
+    pointer-events: none; /* Щоб розділювач не заважав клікати */
+}

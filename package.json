@@ -1,0 +1,29 @@
+{
+  "name": "it-calc",
+  "version": "1.0.0",
+  "description": "An interactive cost calculator for IT projects with a secure admin panel.",
+  "scripts": {
+    "start": "netlify dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnatoliiMikhov/it-calc.git"
+  },
+  "keywords": [
+    "calculator",
+    "netlify",
+    "serverless",
+    "firebase",
+    "javascript"
+  ],
+  "author": "Anatolii Mikhov",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AnatoliiMikhov/it-calc/issues"
+  },
+  "homepage": "https://github.com/AnatoliiMikhov/it-calc#readme",
+  "dependencies": {
+    "firebase-admin": "^13.4.0"
+  }
+}
