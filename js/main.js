@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hiddenOptionsInput = document.querySelector('form[name="contact"] input[name="selected-options"]');
 
     // --- State Variables ---
-    let RATES = null; // Тепер RATES завантажуються асинхронно
+    let RATES = null;
     let previousCost = 0;
     let previousTotalHours = 0;
     let activeTimers = {};
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     function handleFormChange(event) {
-        if (!RATES) return; // Не робити розрахунків, поки тарифи не завантажено
+        if (!RATES) return;
 
         const target = event ? event.target : null;
         let totalHours = 0;
@@ -177,17 +177,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!response.ok) throw new Error('Failed to load rates');
         RATES = await response.json();
         
-        // Робимо перший розрахунок після завантаження тарифів
         form.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
             currentSelections[radio.name] = radio.value;
         });
         handleFormChange();
         
-        // Показуємо калькулятор після того, як все готово
         container.style.opacity = 1;
     } catch (error) {
         console.error(error);
         container.innerHTML = '<h1>Помилка завантаження</h1><p>Не вдалося завантажити тарифи. Спробуйте оновити сторінку пізніше.</p>';
         container.style.opacity = 1;
+    }
+
+    // --- Dynamic Year for Copyright ---
+    const yearSpan = document.getElementById('current-year');
+    if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
     }
 });
